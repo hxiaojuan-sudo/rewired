@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rewired Quiz: Chapter 14 - The Blueprint for a Faster Enterprise</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0b1329 0%, #101d3f 50%, #0a1128 100%);
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --primary-navy: #0f172a;
+      --primary-blue: #1d4ed8;
+      --primary-blue-hover: #1e40af;
+      --accent-blue: #2563eb;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --correct-green: #059669;
+      --correct-bg: #ecfdf5;
+      --correct-border: #10b981;
+      --incorrect-red: #dc2626;
+      --incorrect-bg: #fef2f2;
+      --incorrect-border: #ef4444;
+      --border-radius: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.25);
+      --transition-fast: 0.2s ease;
+      --transition-med: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .quiz-wrapper {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header */
+    .quiz-header {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 24px 32px 20px;
+      border-bottom: 3px solid var(--accent-blue);
+    }
+
+    .badge {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      background: rgba(37, 99, 235, 0.3);
+      color: #93c5fd;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(147, 197, 253, 0.2);
+    }
+
+    .quiz-header h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      color: #f8fafc;
+    }
+
+    .quiz-header p {
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    /* Progress Bar */
+    .progress-section {
+      background: #f8fafc;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      border-radius: 9999px;
+      transition: width var(--transition-med);
+    }
+
+    /* Content Area */
+    .quiz-content {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .question-category {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--primary-navy);
+      margin-bottom: 24px;
+      line-height: 1.45;
+    }
+
+    /* Options */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-btn {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      text-align: left;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      outline: none;
+      user-select: none;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .option-prefix {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+      margin-top: 1px;
+    }
+
+    .option-text {
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* Option States */
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-btn.correct {
+      background: var(--correct-bg) !important;
+      border-color: var(--correct-border) !important;
+      color: #064e3b !important;
+    }
+
+    .option-btn.correct .option-prefix {
+      background: var(--correct-green);
+      color: #ffffff;
+    }
+
+    .option-btn.incorrect {
+      background: var(--incorrect-bg) !important;
+      border-color: var(--incorrect-border) !important;
+      color: #7f1d1d !important;
+    }
+
+    .option-btn.incorrect .option-prefix {
+      background: var(--incorrect-red);
+      color: #ffffff;
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.55;
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    /* Feedback Box */
+    .feedback-box {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border-radius: 10px;
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .feedback-box.correct {
+      display: block;
+      background: var(--correct-bg);
+      border-left: 4px solid var(--correct-green);
+    }
+
+    .feedback-box.incorrect {
+      display: block;
+      background: var(--incorrect-bg);
+      border-left: 4px solid var(--incorrect-red);
+    }
+
+    .feedback-header {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-box.correct .feedback-header {
+      color: var(--correct-green);
+    }
+
+    .feedback-box.incorrect .feedback-header {
+      color: var(--incorrect-red);
+    }
+
+    .feedback-text {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Action Footer */
+    .quiz-footer {
+      margin-top: 28px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .action-btn {
+      background: var(--primary-blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .action-btn:hover {
+      background: var(--primary-blue-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Results Screen */
+    .results-container {
+      display: none;
+      text-align: center;
+      padding: 44px 32px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .score-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+      border: 4px solid #38bdf8;
+    }
+
+    .score-circle .number {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .score-circle .total {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .results-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-navy);
+      margin-bottom: 10px;
+    }
+
+    .results-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 28px;
+      line-height: 1.55;
+    }
+
+    .restart-btn {
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+
+    .restart-btn:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .quiz-header {
+        padding: 20px;
+      }
+      .quiz-header h1 {
+        font-size: 1.25rem;
+      }
+      .quiz-content {
+        padding: 20px;
+      }
+      .progress-section {
+        padding: 12px 20px;
+      }
+      .action-btn, .restart-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .quiz-footer {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-wrapper" role="region" aria-label="Interactive Chapter Quiz">
+    <!-- Quiz Header -->
+    <header class="quiz-header">
+      <span class="badge">Rewired (2nd Edition) • Section 3</span>
+      <h1>Chapter 14: The Blueprint for a Faster Enterprise</h1>
+      <p>Assess your mastery of operating model design, persistent funding, domain-platform structures, and agile governance.</p>
+    </header>
+
+    <!-- Progress Indicator -->
+    <section class="progress-section" aria-label="Progress">
+      <div class="progress-meta">
+        <span id="questionCount">Question 1 of 5</span>
+        <span id="scoreTracker">Score: 0 / 5</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+    </section>
+
+    <!-- Quiz Question Area -->
+    <main class="quiz-content" id="quizContainer">
+      <div class="question-category" id="questionCategory">Category</div>
+      <h2 class="question-text" id="questionText">Loading question...</h2>
+
+      <div class="options-grid" id="optionsGrid" role="radiogroup">
+        <!-- Options injected dynamically -->
+      </div>
+
+      <!-- Immediate Feedback Block -->
+      <div class="feedback-box" id="feedbackBox" aria-live="polite">
+        <div class="feedback-header" id="feedbackHeader"></div>
+        <p class="feedback-text" id="feedbackText"></p>
+      </div>
+
+      <!-- Navigation Action -->
+      <div class="quiz-footer">
+        <button class="action-btn" id="nextBtn" style="display: none;">
+          Next Question 
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- Results Screen -->
+    <section class="results-container" id="resultsContainer">
+      <div class="score-circle">
+        <span class="number" id="finalScore">0</span>
+        <span class="total">OUT OF 5</span>
+      </div>
+      <h2 class="results-title" id="resultsTitle">Transformation Score</h2>
+      <p class="results-subtitle" id="resultsMessage">Evaluation goes here...</p>
+      <button class="restart-btn" id="restartBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Restart Quiz
+      </button>
+    </section>
+  </div>
+
+  <script>
+    // Chapter 14 Quiz Data
+    const quizData = [
+      {
+        category: "1. Core Blueprint Dimensions",
+        question: "According to Chapter 14, an operating model design blueprint translates digital and AI transformation strategy into organizational reality across which five core elements?",
+        options: [
+          "Scope and unit design, management system, ways of working, people and culture, and tooling",
+          "IT infrastructure, enterprise vendor procurement, facilities, legal compliance, and customer support",
+          "Annual budgeting, waterfall stage gates, centralized PMO oversight, matrix hierarchies, and HR policy",
+          "Cloud migration, third-party outsourcing, quarterly cost controls, digital marketing, and helpdesk operations"
+        ],
+        correct: 0,
+        explanation: "Chapter 14 explicitly details the five foundational elements of an enterprise design blueprint: (1) Scope and unit design (domains and platforms), (2) Management system (funding, metrics, and QBRs), (3) Ways of working (agile methodologies and operating cadences), (4) People and culture (talent bench, chapters, incentives), and (5) Tooling (modern automated platforms and developer environments)."
+      },
+      {
+        category: "2. The Change Narrative",
+        question: "In the 'Start with the Why' section of the blueprint, why must executive leadership articulate a multi-dimensional narrative across customer, operational, financial, and organizational lenses?",
+        options: [
+          "To satisfy regulatory documentation requirements before any software deployment begins",
+          "To align leadership and energize teams around business value drivers rather than letting the redesign degenerate into a mechanical cost-cutting or restructuring drill",
+          "To justify immediately outsourcing non-core business activities to third-party vendors",
+          "To eliminate the need for line-of-business managers to participate in technical decisions"
+        ],
+        correct: 1,
+        explanation: "The chapter emphasizes that operating model redesigns stall when viewed as sterile structural reorganizations. Crafting a compelling, multi-faceted 'Why' narrative grounds the transformation in strategic necessity—such as faster time-to-market, elevated customer experience, and talent retention—uniting leadership and squads around real business value."
+      },
+      {
+        category: "3. Scope & Unit Design",
+        question: "How does the blueprint's unit design establish clear autonomy and alignment between Business Domain Teams and Platform Teams?",
+        options: [
+          "Domain teams maintain underlying data centers, while platform teams handle client-facing digital marketing campaigns.",
+          "Domain teams manage vendor contract pricing, while platform teams develop all functional business applications.",
+          "Domain teams own end-to-end customer and business value journeys, while platform teams provide reusable capabilities and digital assets 'as-a-service' to empower them.",
+          "Domain teams are temporary project groups dissolved after launch, while platform teams form the permanent hierarchical management layers."
+        ],
+        correct: 2,
+        explanation: "In Chapter 14's architecture, business domain teams focus cross-functionally on customer journeys and business outcomes. Platform teams build modular, scalable, and reusable technological capabilities (via self-service APIs) that allow domain teams to ship innovations rapidly without reinventing foundational services."
+      },
+      {
+        category: "4. Management System & Governance",
+        question: "How does the 'Management system' element of the blueprint fundamentally change how funding and priorities are managed across the enterprise?",
+        options: [
+          "It introduces a centralized approval board that must sign off on weekly sprint backlogs.",
+          "It shifts from stop-and-start annual project-based funding to persistent, outcome-oriented funding governed dynamically through Quarterly Business Reviews (QBRs).",
+          "It transitions all delivery work to fixed-scope, fixed-price external contracts to ensure cost certainty.",
+          "It eliminates accountability metrics entirely so engineering squads can experiment without financial constraints."
+        ],
+        correct: 1,
+        explanation: "Traditional annual project budgeting creates friction and disrupts momentum. The Rewired blueprint replaces annual budget battles with 'persistent funding' for durable domain teams, using Quarterly Business Reviews (QBRs) and Objectives and Key Results (OKRs) to dynamically steer resources to the highest-value opportunities."
+      },
+      {
+        category: "5. Ways of Working & Controls",
+        question: "Under the blueprint's 'Ways of working' and risk governance, how does a high-speed enterprise balance rapid deployment velocity with security, compliance, and risk controls ('Shift Left')?",
+        options: [
+          "By exempting modern digital and AI squads from corporate risk, regulatory, and security oversight",
+          "By delaying all risk assessments to a final, mandatory annual committee review before release",
+          "By integrating automated compliance checks, security guardrails, and risk specialists directly into squad workflows from the outset",
+          "By requiring engineers to secure manual paper sign-offs from legal and risk departments prior to each software commit"
+        ],
+        correct: 2,
+        explanation: "High velocity requires built-in safety. Chapter 14 highlights 'shifting left'—embedding security, risk controls, and automated compliance directly into CI/CD pipelines and squad collaboration patterns from day one, replacing late-stage bureaucratic tollgates with continuous automated guardrails."
+      }
+    ];
+
+    // State Variables
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    // DOM Elements
+    const quizContainer = document.getElementById("quizContainer");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const questionCategory = document.getElementById("questionCategory");
+    const questionText = document.getElementById("questionText");
+    const optionsGrid = document.getElementById("optionsGrid");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const feedbackHeader = document.getElementById("feedbackHeader");
+    const feedbackText = document.getElementById("feedbackText");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const questionCount = document.getElementById("questionCount");
+    const scoreTracker = document.getElementById("scoreTracker");
+    const progressBar = document.getElementById("progressBar");
+    const finalScore = document.getElementById("finalScore");
+    const resultsTitle = document.getElementById("resultsTitle");
+    const resultsMessage = document.getElementById("resultsMessage");
+
+    const optionPrefixes = ["A", "B", "C", "D"];
+
+    // Initialize Quiz
+    function loadQuestion(index) {
+      answered = false;
+      const q = quizData[index];
+
+      // Reset UI elements
+      questionCategory.textContent = q.category;
+      questionText.textContent = q.question;
+      optionsGrid.innerHTML = "";
+      feedbackBox.className = "feedback-box";
+      feedbackBox.style.display = "none";
+      nextBtn.style.display = "none";
+
+      // Update progress
+      const progressPercent = ((index) / quizData.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+      questionCount.textContent = `Question ${index + 1} of ${quizData.length}`;
+      scoreTracker.textContent = `Score: ${score} / ${quizData.length}`;
+
+      // Populate Options
+      q.options.forEach((optText, i) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.setAttribute("role", "radio");
+        btn.setAttribute("aria-checked", "false");
+        btn.innerHTML = `
+          <span class="option-prefix">${optionPrefixes[i]}</span>
+          <span class="option-text">${optText}</span>
+        `;
+        btn.addEventListener("click", () => handleOptionSelection(i));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    // Handle Option Selection
+    function handleOptionSelection(selectedIndex) {
+      if (answered) return;
+      answered = true;
+
+      const q = quizData[currentQuestionIndex];
+      const buttons = optionsGrid.querySelectorAll(".option-btn");
+      const isCorrect = selectedIndex === q.correct;
+
+      // Lock buttons
+      buttons.forEach(btn => btn.disabled = true);
+
+      // Highlight selected and correct buttons
+      buttons.forEach((btn, i) => {
+        if (i === q.correct) {
+          btn.classList.add("correct");
+          btn.setAttribute("aria-checked", "true");
+        } else if (i === selectedIndex && !isCorrect) {
+          btn.classList.add("incorrect");
+          btn.setAttribute("aria-checked", "true");
+        } else {
+          btn.classList.add("dimmed");
+        }
+      });
+
+      // Update Score
+      if (isCorrect) {
+        score++;
+        scoreTracker.textContent = `Score: ${score} / ${quizData.length}`;
+        feedbackBox.className = "feedback-box correct";
+        feedbackHeader.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg> Correct!
+        `;
+      } else {
+        feedbackBox.className = "feedback-box incorrect";
+        feedbackHeader.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg> Incorrect
+        `;
+      }
+
+      // Display Explanation
+      feedbackText.textContent = q.explanation;
+      feedbackBox.style.display = "block";
+
+      // Configure Action Button
+      if (currentQuestionIndex === quizData.length - 1) {
+        nextBtn.innerHTML = `
+          View Results 
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        `;
+      } else {
+        nextBtn.innerHTML = `
+          Next Question 
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        `;
+      }
+      nextBtn.style.display = "inline-flex";
+
+      // Update progress bar fill slightly upon answering
+      const answeredProgress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+      progressBar.style.width = `${answeredProgress}%`;
+    }
+
+    // Navigation Listener
+    nextBtn.addEventListener("click", () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion(currentQuestionIndex);
+      } else {
+        showResults();
+      }
+    });
+
+    // Results Display
+    function showResults() {
+      quizContainer.style.display = "none";
+      document.querySelector(".progress-section").style.display = "none";
+      resultsContainer.style.display = "block";
+
+      finalScore.textContent = score;
+
+      let title = "";
+      let message = "";
+
+      if (score === 5) {
+        title = "Enterprise Transformation Architect!";
+        message = "Outstanding! You demonstrate complete mastery of Chapter 14's blueprint. You thoroughly understand how to align domains and platforms, embed risk controls, and transition from traditional funding models to high-velocity operating models.";
+      } else if (score === 4) {
+        title = "Digital Operating Model Leader!";
+        message = "Excellent performance! You hold a commanding grasp of the enterprise blueprint. With minor refinements around governance cadences and platform structures, you are well-equipped to drive digital scale.";
+      } else if (score === 3) {
+        title = "Transformation Practitioner!";
+        message = "Solid foundation! You understand the fundamental pillars of a rewired enterprise. Reviewing the interactions between persistent funding, QBRs, and unit scope will strengthen your strategic execution edge.";
+      } else {
+        title = "Blueprint Explorer!";
+        message = "Good start! Transforming an enterprise operating model involves unlearning traditional IT waterfall habits. Review Chapter 14's five core design elements and give it another shot to lock in key concepts.";
+      }
+
+      resultsTitle.textContent = title;
+      resultsMessage.textContent = message;
+    }
+
+    // Restart Listener
+    restartBtn.addEventListener("click", () => {
+      score = 0;
+      currentQuestionIndex = 0;
+      quizContainer.style.display = "flex";
+      document.querySelector(".progress-section").style.display = "flex";
+      resultsContainer.style.display = "none";
+      loadQuestion(currentQuestionIndex);
+    });
+
+    // Initialize first question on load
+    loadQuestion(0);
+  </script>
+</body>
+</html>
